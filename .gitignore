@@ -216,3 +216,5 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
+.vscode/launch.json
+.vscode/settings.json
