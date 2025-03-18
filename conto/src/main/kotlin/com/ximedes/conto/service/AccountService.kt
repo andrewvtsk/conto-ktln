@@ -1,6 +1,7 @@
 package com.ximedes.conto.service
 
 import com.ximedes.conto.db.AccountMapper
+import com.ximedes.conto.core.port.output.AccountBalancePort
 import com.ximedes.conto.domain.*
 import mu.KotlinLogging
 import org.springframework.context.ApplicationEventPublisher
@@ -14,7 +15,8 @@ private const val FIRST_ACCOUNT_DESCRIPTION = "Checking"
 
 @Service
 @Transactional
-class AccountService(private val accountMapper: AccountMapper,
+class AccountService(private val accountBalancePort: AccountBalancePort,
+                     private val accountMapper: AccountMapper,
                      private val userService: UserService,
                      private val eventPublisher: ApplicationEventPublisher) {
 
@@ -22,7 +24,24 @@ class AccountService(private val accountMapper: AccountMapper,
 
     // This property will be set when an admin user is created,
     // which should happen on startup
-    lateinit var rootAccount: Account
+    private var rootAccount: Account? = null 
+
+    fun getRootAccount(): Account {
+        return rootAccount ?: throw IllegalStateException("Root account is not initialized yet")
+    }
+
+    fun initializeRootAccount() {
+        if (rootAccount == null) {
+            accountMapper.find(AccountCriteria(ownerID = "System")).firstOrNull() ?: createRootAccount()
+            logger.info("System bank account initialized: ${rootAccount!!.accountID}")
+        }
+    }
+
+    private fun createRootAccount(): Account {
+        val newRootAccount = Account(generateAccountID(), "System", "Bank", Long.MIN_VALUE, 0)
+        accountMapper.insertAccount(newRootAccount)
+        return newRootAccount
+    }
 
     @EventListener
     fun onAdminUserCreated(event: AdminUserCreatedEvent) {
@@ -58,8 +77,9 @@ class AccountService(private val accountMapper: AccountMapper,
 
     private fun doCreateAccount(owner: String, description: String, minimumBalance: Long): Account {
         val accountID = generateAccountID()
-        // By default create a Account with the balance field set to null.
-        val account = Account(accountID, owner, description, minimumBalance, null)
+        val balance = 0L // NULL
+        // By default create a Account with the balance field set to 0.
+        val account = Account(accountID, owner, description, minimumBalance, balance)
         accountMapper.insertAccount(account)
         logger.info("Created new account $account.")
         return account
@@ -74,5 +94,8 @@ class AccountService(private val accountMapper: AccountMapper,
 
     fun findByOwner(user: String) = accountMapper.find(AccountCriteria(ownerID = user))
 
+    fun getBalance(accountId: String): Long {
+        return accountBalancePort.getBalance(accountId)
+    }
 
 }

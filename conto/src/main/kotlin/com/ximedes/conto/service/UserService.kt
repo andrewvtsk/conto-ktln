@@ -16,6 +16,8 @@ import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.core.userdetails.User as SpringUser
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.text.Normalizer
@@ -34,7 +36,8 @@ class UserService(
     private val logger = KotlinLogging.logger { }
 
     val loggedInUser: User?
-        get() = SecurityContextHolder.getContext().authentication?.principal as User
+        get() = (SecurityContextHolder.getContext().authentication?.principal as? SpringUser)
+        ?.let { findByUsername(it.username) }
 
 
     @EventListener
@@ -46,7 +49,13 @@ class UserService(
     }
 
     override fun loadUserByUsername(username: String): UserDetails {
-        return userMapper.findByUsername(username) ?: throw UsernameNotFoundException(username)
+        val user = userMapper.findByUsername(username) ?: throw UsernameNotFoundException(username)
+    
+        return SpringUser(
+            user.username,
+            user.password,
+            setOf(SimpleGrantedAuthority(user.role.authority))
+        )
     }
 
     fun findByUsername(username: String): User? {
@@ -62,9 +71,14 @@ class UserService(
         userMapper.insertUser(user, username.asCanonicalUsername())
 
         SecurityContextHolder.getContext().authentication =
-            UsernamePasswordAuthenticationToken(user, password, user.authorities)
+            UsernamePasswordAuthenticationToken(
+                SpringUser(user.username, user.password, setOf(SimpleGrantedAuthority(user.role.authority))),
+                password,
+                setOf(SimpleGrantedAuthority(user.role.authority))
+            )
 
-        eventPublisher.publishEvent(UserSignedUpEvent(this, user.getUsername()))
+        eventPublisher.publishEvent(UserSignedUpEvent(this, user.username))
+
         return user
     }
 }

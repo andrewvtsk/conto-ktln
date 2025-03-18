@@ -18,5 +18,4 @@
         <setting name="localCacheScope" value="STATEMENT"/>
     </settings>
 
-
 </configuration>

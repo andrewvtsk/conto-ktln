@@ -15,9 +15,9 @@
 
     <insert id="insertTransfer" useGeneratedKeys="true" keyProperty="transferID">
         INSERT INTO transfer
-        (debit_account_id, credit_account_id, amount, description)
+        (debit_account_id, credit_account_id, amount, description, timestamp)
         VALUES
-        (#{debitAccountID}, #{creditAccountID}, #{amount}, #{description})
+        (#{debitAccountID}, #{creditAccountID}, #{amount}, #{description}, CURRENT_TIMESTAMP)
     </insert>
 
     <select id="findByTransferID" resultMap="transferMap">
@@ -26,7 +26,7 @@
         WHERE transfer_id = #{transferID}
     </select>
 
-    <select id="findTransfersByAccountID" resultMap="transferMap">
+    <select id="_findTransfersByAccountID" resultMap="transferMap">
         SELECT *
         FROM transfer t
         WHERE t.debit_account_id = #{id}
@@ -74,5 +74,11 @@
         FROM
            AccountBalance;
     </select>
+
+   <select id="findTransfersByAccountID" parameterType="string" resultType="com.ximedes.conto.domain.Transfer">
+      SELECT transfer_id, debit_account_id, credit_account_id, amount, description, timestamp
+      FROM transfer
+      WHERE debit_account_id = #{accountID} OR credit_account_id = #{accountID}
+   </select>
 
 </mapper>

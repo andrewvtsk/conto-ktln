@@ -39,8 +39,8 @@ class TransferController(
         model.addAttribute("userAccounts", accountsForUser)
         logger.debug("Retrieving balances for ${accountsForUser.size} accounts owned by user ${currentUser.username}")
         val balances = accountsForUser.groupBy(keySelector = { it.accountID }, valueTransform = {
-            transferService.findBalance(it.accountID)
-        })
+            accountService.getBalance(it.accountID)
+        })        
         model.addAttribute("balances", balances)
         logger.debug("Adding all accounts to the model")
         val allAccounts = accountService.findAllAccounts()

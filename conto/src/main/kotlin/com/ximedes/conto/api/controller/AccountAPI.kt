@@ -24,14 +24,8 @@ class AccountAPI(
         val response = accountService.findAllAccounts().map { a ->
             // Only add sensitive info if the current user is the owner of the account
             if (a.owner == user) {
-                val accountBalance: Long
-                // Check if the balance is present in the account table of the DB.
-                if (a.balance != null) {
-                    accountBalance = a.balance
-                } else {
-                    // As the balance is not present, this value must be calculated.
-                    accountBalance = transferService.calculateBalanceByAccountID(a.accountID)
-                }
+                val accountBalance = accountService.getBalance(a.accountID)
+    
                 AccountDTO(a.accountID, a.owner, a.description, a.minimumBalance, accountBalance)
             } else {
                 AccountDTO(a.accountID, a.owner, a.description)

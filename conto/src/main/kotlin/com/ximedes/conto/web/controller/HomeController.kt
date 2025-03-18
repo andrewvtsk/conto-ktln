@@ -37,7 +37,7 @@ class HomeController(
 
         logger.debug("Retrieving balances for ${accounts.size} accounts owned by user ${currentUser.username}")
 
-        val balances = accounts.associateBy { it.accountID }.mapValues { transferService.findBalance(it.key) }
+        val balances = accounts.associateBy { it.accountID }.mapValues { accountService.getBalance(it.key) }
         mav.addObject(BALANCES_KEY, balances)
 
         /**

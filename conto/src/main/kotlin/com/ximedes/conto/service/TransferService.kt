@@ -1,118 +1,71 @@
 package com.ximedes.conto.service
-
 import com.ximedes.conto.db.TransferMapper
+import com.ximedes.conto.core.port.output.AccountBalancePort
+import com.ximedes.conto.core.port.output.TransferRepository
+import com.ximedes.conto.core.port.input.TransferUseCase
+
 import com.ximedes.conto.domain.*
 import com.ximedes.conto.domain.AccountNotAvailableException.Type.*
 import mu.KotlinLogging
-import org.springframework.context.event.EventListener
+// import org.springframework.context.event.EventListener
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import javax.security.auth.login.AccountNotFoundException
 
 const val SIGNUP_BONUS = 100L
 
 @Service
 @Transactional
 class TransferService(
-    private val userService: UserService,
     private val accountService: AccountService,
-    private val transferMapper: TransferMapper
-) {
+    private val accountBalancePort: AccountBalancePort,
+    private val transferRepository: TransferRepository
+): TransferUseCase {
 
     private val logger = KotlinLogging.logger { }
 
-    fun findBalance(accountID: String): Long {
-        val account = accountService.findByAccountID(accountID)
-            ?: throw IllegalArgumentException("No account found with ID $accountID")
-
-        require(userService.loggedInUser.hasAccessTo(account)) {
-            "User ${userService.loggedInUser} does not have access to account $accountID"
-        }
-
-        val accountBalance: Long
-        // Check if the account balance is present in the DB
-        if (account.balance != null) {
-            accountBalance = account.balance
-        } else {
-            // If the balance is not present in the DB, the value has to be calculated.
-            accountBalance = calculateBalanceByAccountID(accountID)
-            // Set the balance in the DB
-            accountService.setAccountBalance(
-                account.accountID,
-                accountBalance
-            )
-        }
-        return accountBalance
-    }
-
-    fun calculateBalanceByAccountID(
-        accountID: String
-    ): Long {
-        return transferMapper.calculateBalanceByAccountID(accountID)
-    }
-
-    // TODO this can go now, right? because these are runtimes?
-    @Throws(InsufficientFundsException::class, AccountNotFoundException::class)
     @PreAuthorize("isAuthenticated()")
-    fun attemptTransfer(
+    override fun attemptTransfer(
         debitAccountID: String,
         creditAccountID: String,
         amount: Long,
         description: String
     ): Transfer {
-        val debitAccount = accountService.findByAccountID(debitAccountID)
-            ?: throw AccountNotAvailableException(DEBIT, "Debit account with ID $debitAccountID not found.")
-        val creditAccount = accountService.findByAccountID(creditAccountID)
-            ?: throw AccountNotAvailableException(CREDIT, "Credit account with ID $creditAccountID not found.")
+        val debitBalance = accountBalancePort.getBalance(debitAccountID)
 
-        require(userService.loggedInUser.hasAccessTo(debitAccount)) {
-            "User ${userService.loggedInUser} does not have access to account $debitAccountID"
+        if (debitBalance < amount) {
+            throw InsufficientFundsException("Insufficient funds for transferring $amount")
         }
 
-        val debitAccountBalance: Long = debitAccount.balance ?: findBalance(debitAccount.accountID)
+        val transfer = Transfer(debitAccountID, creditAccountID, amount, description)
 
-        if (debitAccountBalance - amount < debitAccount.minimumBalance) {
-            throw InsufficientFundsException("Insufficient funds for transferring $amount from account ${debitAccount.accountID} with balance $debitAccountBalance")
+        if (!accountBalancePort.updateBalance(debitAccountID, -amount)) {
+            throw RuntimeException("Transfer failed due to concurrent modification")
+        }
+        if (!accountBalancePort.updateBalance(creditAccountID, amount)) {
+            throw RuntimeException("Transfer failed due to concurrent modification")
         }
 
-        val transfer = Transfer(debitAccount.accountID, creditAccount.accountID, amount, description).also {
-            transferMapper.insertTransfer(it)
-        }
-
-        // Update the balance of the debit account.
-        accountService.updateAccountBalanceWhenTransfer(
-            debitAccount.accountID, -amount
-        )
-
-        // Update the balance of the credit account.
-        accountService.updateAccountBalanceWhenTransfer(
-            creditAccount.accountID, amount
-        )
+        transferRepository.saveTransfer(transfer)
 
         return transfer
     }
 
-    @PreAuthorize("isAuthenticated()")
-    fun findTransfersByAccountID(accountID: String): List<Transfer> {
-        val account = accountService.findByAccountID(accountID)
-            ?: throw AccountNotAvailableException(UNKNOWN, "Account with ID $accountID not found.")
-
-        require(userService.loggedInUser.hasAccessTo(account)) {
-            "User ${userService.loggedInUser} does not have access to account $accountID"
-        }
-        return transferMapper.findTransfersByAccountID(accountID)
+    @PreAuthorize("hasRole('ADMIN') or @accountSecurity.hasAccessToAccount(#accountID)")
+    override fun findTransfersByAccountID(accountID: String): List<Transfer> {
+        return transferRepository.findTransfersByAccountID(accountID)
     }
 
-    @EventListener
-    fun onFirstAccountCreated(event: FirstAccountCreatedEvent) {
-        logger.info { "Granting signup bonus to owner ${event.owner} of new first account ${event.accountID}" }
-        val t = Transfer(accountService.rootAccount.accountID, event.accountID, SIGNUP_BONUS, "Welcome to Conto!")
-        transferMapper.insertTransfer(t)
-        // Update the balance of the bank account.
-        accountService.updateAccountBalanceWhenTransfer(
-            t.debitAccountID, -t.amount
-        )
+    override fun grantSignupBonus(accountID: String) {
+        val rootAccount = accountService.getRootAccount()
+            ?: throw IllegalStateException("Cannot grant signup bonus because root account is not initialized")
+    
+        logger.info("Granting signup bonus from ${rootAccount.accountID} to new account $accountID")
+    
+        val transfer = Transfer(rootAccount.accountID, accountID, SIGNUP_BONUS, "Welcome to Conto!")
+    
+        transferRepository.saveTransfer(transfer)
+        accountBalancePort.updateBalance(accountID, SIGNUP_BONUS)
     }
 
 }

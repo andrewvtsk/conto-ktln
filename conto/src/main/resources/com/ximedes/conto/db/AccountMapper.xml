@@ -59,4 +59,22 @@
         WHERE account_id = #{accountId}
     </update>
 
+    <select id="findAccountOwnerById" parameterType="string" resultType="string">
+        SELECT owner 
+        FROM account 
+        WHERE account_id = #{accountId}
+    </select>
+
+    <select id="findBalanceByAccountId" parameterType="string" resultType="long">
+        SELECT balance 
+        FROM account 
+        WHERE account_id = #{accountId}
+    </select>
+
+    <update id="updateBalanceWithOptimisticLock" parameterType="map">
+        UPDATE account
+        SET balance = balance + #{amount}, version = version + 1
+        WHERE account_id = #{accountId} AND version = (SELECT version FROM account WHERE account_id = #{accountId})
+    </update>
+
 </mapper>
