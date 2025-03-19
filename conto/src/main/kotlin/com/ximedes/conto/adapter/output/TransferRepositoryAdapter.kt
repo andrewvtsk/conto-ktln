@@ -1,6 +1,6 @@
 package com.ximedes.conto.adapter.output
 
-import com.ximedes.conto.domain.Transfer
+import com.ximedes.conto.core.domain.Transfer
 import com.ximedes.conto.db.TransferMapper
 import com.ximedes.conto.core.port.output.TransferRepository
 import org.springframework.stereotype.Repository

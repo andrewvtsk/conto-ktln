@@ -3,11 +3,11 @@
 
 <mapper namespace="com.ximedes.conto.db.UserMapper">
 
-    <resultMap id="userMap" type="com.ximedes.conto.domain.User">
+    <resultMap id="userMap" type="com.ximedes.conto.core.domain.User">
         <constructor>
             <idArg column="username" javaType="string"/>
             <arg column="password" javaType="string"/>
-            <arg column="role" javaType="com.ximedes.conto.domain.Role"/>
+            <arg column="role" javaType="com.ximedes.conto.core.domain.Role"/>
         </constructor>
     </resultMap>
 
@@ -15,7 +15,7 @@
         SELECT * FROM user WHERE username = #{username}
     </select>
 
-    <insert id="insertUser" parameterType="com.ximedes.conto.domain.User">
+    <insert id="insertUser" parameterType="com.ximedes.conto.core.domain.User">
         INSERT INTO user
         (username, canonical_username, role, password)
         VALUES

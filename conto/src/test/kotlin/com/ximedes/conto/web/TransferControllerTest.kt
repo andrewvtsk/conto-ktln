@@ -8,9 +8,9 @@ import com.ximedes.conto.AccountBuilder
 import com.ximedes.conto.TransferBuilder
 import com.ximedes.conto.TransferFormBuilder
 import com.ximedes.conto.UserBuilder
-import com.ximedes.conto.service.AccountService
-import com.ximedes.conto.service.TransferService
-import com.ximedes.conto.service.UserService
+import com.ximedes.conto.core.service.AccountService
+import com.ximedes.conto.core.service.TransferService
+import com.ximedes.conto.core.service.UserService
 import com.ximedes.conto.web.controller.TRANSFER_VIEW
 import com.ximedes.conto.web.controller.TransferController
 import org.junit.jupiter.api.Assertions.assertEquals

@@ -1,7 +1,7 @@
 package com.ximedes.conto.security
 
 import com.ximedes.conto.core.port.output.AccountBalancePort
-import com.ximedes.conto.service.UserService
+import com.ximedes.conto.core.service.UserService
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 import org.springframework.security.core.userdetails.User

@@ -1,11 +1,11 @@
-package com.ximedes.conto.service
+package com.ximedes.conto.core.service
 
 import com.ximedes.conto.asCanonicalUsername
-import com.ximedes.conto.db.UserMapper
-import com.ximedes.conto.domain.AdminUserCreatedEvent
-import com.ximedes.conto.domain.Role
-import com.ximedes.conto.domain.User
-import com.ximedes.conto.domain.UserSignedUpEvent
+import com.ximedes.conto.core.port.output.UserPort
+import com.ximedes.conto.core.domain.AdminUserCreatedEvent
+import com.ximedes.conto.core.domain.Role
+import com.ximedes.conto.core.domain.User
+import com.ximedes.conto.core.domain.UserSignedUpEvent
 import mu.KotlinLogging
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.event.ContextRefreshedEvent
@@ -28,7 +28,7 @@ private const val ADMIN_PASSWORD = "admin"
 @Service
 @Transactional
 class UserService(
-    private val userMapper: UserMapper,
+    private val userPort: UserPort,
     private val encoder: PasswordEncoder,
     private val eventPublisher: ApplicationEventPublisher
 ) : UserDetailsService {
@@ -37,48 +37,49 @@ class UserService(
 
     val loggedInUser: User?
         get() = (SecurityContextHolder.getContext().authentication?.principal as? SpringUser)
-        ?.let { findByUsername(it.username) }
+            ?.let { findByUsername(it.username) }
 
 
     @EventListener
     fun onContextRefreshedEvent(e: ContextRefreshedEvent?) {
         logger.info("Creating admin user with username '$ADMIN_USERNAME' and default password")
         val admin = User(ADMIN_USERNAME, encoder.encode(ADMIN_PASSWORD), Role.ADMIN)
-        userMapper.insertUser(admin, ADMIN_USERNAME)
+        userPort.insertUser(admin, ADMIN_USERNAME)
+        
+        // authenticateUser(admin, ADMIN_PASSWORD)
+
         eventPublisher.publishEvent(AdminUserCreatedEvent(this, ADMIN_USERNAME))
     }
 
     override fun loadUserByUsername(username: String): UserDetails {
-        val user = userMapper.findByUsername(username) ?: throw UsernameNotFoundException(username)
-    
-        return SpringUser(
-            user.username,
-            user.password,
-            setOf(SimpleGrantedAuthority(user.role.authority))
-        )
+        val user = userPort.findByUsername(username) ?: throw UsernameNotFoundException(username)
+        return createSpringUser(user)
     }
 
     fun findByUsername(username: String): User? {
-        return userMapper.findByUsername(username)
+        return userPort.findByUsername(username)
     }
 
     fun isCommonPassword(password: String?) = password?.let {
-        userMapper.isCommonPassword(Normalizer.normalize(password, Normalizer.Form.NFKC))
+        userPort.isCommonPassword(Normalizer.normalize(password, Normalizer.Form.NFKC))
     } ?: true
 
     fun signupAndLogin(username: String, password: String): User {
         val user = User(username, encoder.encode(password), Role.USER)
-        userMapper.insertUser(user, username.asCanonicalUsername())
-
-        SecurityContextHolder.getContext().authentication =
-            UsernamePasswordAuthenticationToken(
-                SpringUser(user.username, user.password, setOf(SimpleGrantedAuthority(user.role.authority))),
-                password,
-                setOf(SimpleGrantedAuthority(user.role.authority))
-            )
-
+        userPort.insertUser(user, username.asCanonicalUsername())
         eventPublisher.publishEvent(UserSignedUpEvent(this, user.username))
-
         return user
+    }
+
+    // private fun authenticateUser(user: User, password: String) {
+    //     val authorities = setOf(SimpleGrantedAuthority(user.role.authority))
+    //     val authToken = UsernamePasswordAuthenticationToken(
+    //         SpringUser(user.username, user.password, authorities), password, authorities
+    //     )
+    //     SecurityContextHolder.getContext().authentication = authToken
+    // }
+
+    private fun createSpringUser(user: User): SpringUser {
+        return SpringUser(user.username, user.password, setOf(SimpleGrantedAuthority(user.role.authority)))
     }
 }

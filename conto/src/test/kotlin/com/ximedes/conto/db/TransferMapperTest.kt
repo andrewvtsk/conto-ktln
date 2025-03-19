@@ -3,7 +3,7 @@ package com.ximedes.conto.db
 import com.ximedes.conto.AbstractIntegrationTest
 import com.ximedes.conto.AccountBuilder
 import com.ximedes.conto.TransferBuilder
-import com.ximedes.conto.domain.Account
+import com.ximedes.conto.core.domain.Account
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
 import org.junit.jupiter.api.BeforeAll

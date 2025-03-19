@@ -3,7 +3,7 @@
 
 <mapper namespace="com.ximedes.conto.db.TransferMapper">
 
-    <resultMap id="transferMap" type="com.ximedes.conto.domain.Transfer">
+    <resultMap id="transferMap" type="com.ximedes.conto.core.domain.Transfer">
         <constructor>
             <idArg column="transfer_id" javaType="_long"/>
             <arg column="debit_account_id" javaType="string"/>
@@ -75,7 +75,7 @@
            AccountBalance;
     </select>
 
-   <select id="findTransfersByAccountID" parameterType="string" resultType="com.ximedes.conto.domain.Transfer">
+   <select id="findTransfersByAccountID" parameterType="string" resultType="com.ximedes.conto.core.domain.Transfer">
       SELECT transfer_id, debit_account_id, credit_account_id, amount, description, timestamp
       FROM transfer
       WHERE debit_account_id = #{accountID} OR credit_account_id = #{accountID}

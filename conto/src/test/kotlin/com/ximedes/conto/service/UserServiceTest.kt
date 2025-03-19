@@ -1,10 +1,10 @@
-package com.ximedes.conto.service
+package com.ximedes.conto.core.service
 
 import com.nhaarman.mockitokotlin2.*
 import com.ximedes.conto.db.UserMapper
-import com.ximedes.conto.domain.AdminUserCreatedEvent
-import com.ximedes.conto.domain.Role
-import com.ximedes.conto.domain.User
+import com.ximedes.conto.core.domain.AdminUserCreatedEvent
+import com.ximedes.conto.core.domain.Role
+import com.ximedes.conto.core.domain.User
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach

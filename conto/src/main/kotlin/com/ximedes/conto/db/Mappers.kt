@@ -1,9 +1,9 @@
 package com.ximedes.conto.db
 
-import com.ximedes.conto.domain.Account
-import com.ximedes.conto.domain.AccountCriteria
-import com.ximedes.conto.domain.Transfer
-import com.ximedes.conto.domain.User
+import com.ximedes.conto.core.domain.Account
+import com.ximedes.conto.core.domain.AccountCriteria
+import com.ximedes.conto.core.domain.Transfer
+import com.ximedes.conto.core.domain.User
 import org.apache.ibatis.annotations.Mapper
 import org.apache.ibatis.annotations.Param
 import org.springframework.stereotype.Repository

@@ -1,6 +1,6 @@
 package com.ximedes.conto.web.controller
 
-import com.ximedes.conto.service.UserService
+import com.ximedes.conto.core.service.UserService
 import mu.KotlinLogging
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model

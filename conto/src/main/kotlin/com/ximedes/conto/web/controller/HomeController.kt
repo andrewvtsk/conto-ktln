@@ -1,8 +1,9 @@
 package com.ximedes.conto.web.controller
 
-import com.ximedes.conto.service.AccountService
-import com.ximedes.conto.service.TransferService
-import com.ximedes.conto.service.UserService
+import com.ximedes.conto.core.service.AccountService
+import com.ximedes.conto.core.service.TransferService
+import com.ximedes.conto.core.service.UserService
+import com.ximedes.conto.core.port.output.AccountBalancePort
 import mu.KotlinLogging
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
@@ -20,6 +21,7 @@ private const val ALL_ACCOUNTS_KEY = "allAccounts";
 class HomeController(
     private val userService: UserService,
     private val accountService: AccountService,
+    private val accountBalancePort: AccountBalancePort,
     private val transferService: TransferService
 ) {
 
@@ -37,7 +39,7 @@ class HomeController(
 
         logger.debug("Retrieving balances for ${accounts.size} accounts owned by user ${currentUser.username}")
 
-        val balances = accounts.associateBy { it.accountID }.mapValues { accountService.getBalance(it.key) }
+        val balances = accounts.associateBy { it.accountID }.mapValues { accountBalancePort.getBalance(it.key) }
         mav.addObject(BALANCES_KEY, balances)
 
         /**
@@ -57,7 +59,7 @@ class HomeController(
         /**
          * Add all accounts to fill the address book in the UI
          */
-        val allAccounts = accountService.findAllAccounts()
+        val allAccounts = accountService.findByOwner(userService.loggedInUser!!.username)
         mav.addObject(ALL_ACCOUNTS_KEY, allAccounts.associateBy { it.accountID })
 
         return mav

@@ -1,8 +1,8 @@
 package com.ximedes.conto
 
 import com.ximedes.conto.db.UserMapper
-import com.ximedes.conto.domain.Role
-import com.ximedes.conto.domain.User
+import com.ximedes.conto.core.domain.Role
+import com.ximedes.conto.core.domain.User
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest

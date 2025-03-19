@@ -1,10 +1,10 @@
 package com.ximedes.conto
 
 import com.ximedes.conto.api.controller.TransferRequest
-import com.ximedes.conto.domain.Account
-import com.ximedes.conto.domain.Role
-import com.ximedes.conto.domain.Transfer
-import com.ximedes.conto.domain.User
+import com.ximedes.conto.core.domain.Account
+import com.ximedes.conto.core.domain.Role
+import com.ximedes.conto.core.domain.Transfer
+import com.ximedes.conto.core.domain.User
 import com.ximedes.conto.web.controller.AdminCreateAccountForm
 import com.ximedes.conto.web.controller.CreateAccountForm
 import com.ximedes.conto.web.controller.TransferForm

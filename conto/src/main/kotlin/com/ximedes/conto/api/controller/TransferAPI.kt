@@ -2,10 +2,10 @@ package com.ximedes.conto.api.controller
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL
-import com.ximedes.conto.domain.AccountNotAvailableException
-import com.ximedes.conto.domain.InsufficientFundsException
-import com.ximedes.conto.domain.Transfer
-import com.ximedes.conto.service.TransferService
+import com.ximedes.conto.core.domain.AccountNotAvailableException
+import com.ximedes.conto.core.domain.InsufficientFundsException
+import com.ximedes.conto.core.domain.Transfer
+import com.ximedes.conto.core.service.TransferService
 import mu.KotlinLogging
 import org.hibernate.validator.constraints.CodePointLength
 import org.springframework.http.ResponseEntity

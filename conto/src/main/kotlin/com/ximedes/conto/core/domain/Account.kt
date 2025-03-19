@@ -1,4 +1,4 @@
-package com.ximedes.conto.domain
+package com.ximedes.conto.core.domain
 
 data class Account(
     val accountID: String, 

@@ -6,9 +6,9 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import com.ximedes.conto.AccountFormBuilder
 import com.ximedes.conto.UserBuilder
-import com.ximedes.conto.domain.Role
-import com.ximedes.conto.service.AccountService
-import com.ximedes.conto.service.UserService
+import com.ximedes.conto.core.domain.Role
+import com.ximedes.conto.core.service.AccountService
+import com.ximedes.conto.core.service.UserService
 import com.ximedes.conto.web.controller.ACCOUNT_VIEW
 import com.ximedes.conto.web.controller.AccountController
 import com.ximedes.conto.web.controller.AdminCreateAccountForm

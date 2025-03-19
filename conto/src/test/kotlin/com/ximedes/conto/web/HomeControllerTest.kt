@@ -4,10 +4,10 @@ import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.whenever
 import com.ximedes.conto.AccountBuilder
 import com.ximedes.conto.UserBuilder
-import com.ximedes.conto.domain.Account
-import com.ximedes.conto.service.AccountService
-import com.ximedes.conto.service.TransferService
-import com.ximedes.conto.service.UserService
+import com.ximedes.conto.core.domain.Account
+import com.ximedes.conto.core.service.AccountService
+import com.ximedes.conto.core.service.TransferService
+import com.ximedes.conto.core.service.UserService
 import com.ximedes.conto.web.controller.HomeController
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Assertions.assertEquals

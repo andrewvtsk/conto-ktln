@@ -1,8 +1,8 @@
 package com.ximedes.conto.web.controller
 
-import com.ximedes.conto.domain.isAdmin
-import com.ximedes.conto.service.AccountService
-import com.ximedes.conto.service.UserService
+import com.ximedes.conto.core.domain.isAdmin
+import com.ximedes.conto.core.service.AccountService
+import com.ximedes.conto.core.service.UserService
 import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model

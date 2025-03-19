@@ -1,4 +1,4 @@
-package com.ximedes.conto.service
+package com.ximedes.conto.core.service
 
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.mock
@@ -8,8 +8,8 @@ import com.ximedes.conto.AccountBuilder
 import com.ximedes.conto.TransferBuilder
 import com.ximedes.conto.UserBuilder
 import com.ximedes.conto.db.TransferMapper
-import com.ximedes.conto.domain.*
-import com.ximedes.conto.domain.AccountNotAvailableException.Type.*
+import com.ximedes.conto.core.domain.*
+import com.ximedes.conto.core.domain.AccountNotAvailableException.Type.*
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

@@ -3,7 +3,7 @@
 
 <mapper namespace="com.ximedes.conto.db.AccountMapper">
 
-    <resultMap id="accountMap" type="com.ximedes.conto.domain.Account">
+    <resultMap id="accountMap" type="com.ximedes.conto.core.domain.Account">
         <constructor>
             <idArg column="account_id" javaType="string"/>
             <arg column="owner" javaType="string"/>
@@ -17,7 +17,7 @@
         SELECT NEXT VALUE FOR seq_acc_id
     </select>
 
-    <select id="find" parameterType="com.ximedes.conto.domain.AccountCriteria" resultMap="accountMap">
+    <select id="find" parameterType="com.ximedes.conto.core.domain.AccountCriteria" resultMap="accountMap">
         select * from account
         <where>
             <if test="ownerID != null">

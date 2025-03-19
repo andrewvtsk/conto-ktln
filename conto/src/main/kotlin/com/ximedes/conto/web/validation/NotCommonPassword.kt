@@ -1,6 +1,6 @@
 package com.ximedes.conto.web.validation
 
-import com.ximedes.conto.service.UserService
+import com.ximedes.conto.core.service.UserService
 import java.lang.annotation.Retention
 import java.lang.annotation.RetentionPolicy
 import javax.validation.Constraint

@@ -1,6 +1,6 @@
 package com.ximedes.conto
 
-import com.ximedes.conto.service.UserService
+import com.ximedes.conto.core.service.UserService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Lazy

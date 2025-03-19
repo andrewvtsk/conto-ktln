@@ -1,6 +1,6 @@
 package com.ximedes.conto.api.security
 
-import com.ximedes.conto.service.UserService
+import com.ximedes.conto.core.service.UserService
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.annotation.Order

@@ -1,6 +1,6 @@
 package com.ximedes.conto.core.port.input
 
-import com.ximedes.conto.domain.Transfer
+import com.ximedes.conto.core.domain.Transfer
 
 interface TransferUseCase {
     fun attemptTransfer(

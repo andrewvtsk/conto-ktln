@@ -5,10 +5,10 @@ import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import com.ximedes.conto.TransferBuilder
 import com.ximedes.conto.TransferRequestBuilder
-import com.ximedes.conto.domain.AccountNotAvailableException
-import com.ximedes.conto.domain.AccountNotAvailableException.Type.DEBIT
-import com.ximedes.conto.domain.InsufficientFundsException
-import com.ximedes.conto.service.TransferService
+import com.ximedes.conto.core.domain.AccountNotAvailableException
+import com.ximedes.conto.core.domain.AccountNotAvailableException.Type.DEBIT
+import com.ximedes.conto.core.domain.InsufficientFundsException
+import com.ximedes.conto.core.service.TransferService
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.fail
 import org.junit.jupiter.api.Test

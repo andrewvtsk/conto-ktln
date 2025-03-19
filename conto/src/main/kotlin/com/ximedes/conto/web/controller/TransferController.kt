@@ -1,12 +1,13 @@
 package com.ximedes.conto.web.controller
 
-import com.ximedes.conto.domain.AccountNotAvailableException
-import com.ximedes.conto.domain.AccountNotAvailableException.Type.CREDIT
-import com.ximedes.conto.domain.AccountNotAvailableException.Type.DEBIT
-import com.ximedes.conto.domain.InsufficientFundsException
-import com.ximedes.conto.service.AccountService
-import com.ximedes.conto.service.TransferService
-import com.ximedes.conto.service.UserService
+import com.ximedes.conto.core.domain.AccountNotAvailableException
+import com.ximedes.conto.core.domain.AccountNotAvailableException.Type.CREDIT
+import com.ximedes.conto.core.domain.AccountNotAvailableException.Type.DEBIT
+import com.ximedes.conto.core.domain.InsufficientFundsException
+import com.ximedes.conto.core.service.AccountService
+import com.ximedes.conto.core.service.TransferService
+import com.ximedes.conto.core.service.UserService
+import com.ximedes.conto.core.port.output.AccountBalancePort
 import mu.KotlinLogging
 import org.springframework.stereotype.Controller
 import org.springframework.ui.Model
@@ -26,6 +27,7 @@ const val TRANSFER_VIEW = "transfer"
 class TransferController(
     private val userService: UserService,
     private val accountService: AccountService,
+    private val accountBalancePort: AccountBalancePort,
     private val transferService: TransferService
 ) {
 
@@ -39,11 +41,11 @@ class TransferController(
         model.addAttribute("userAccounts", accountsForUser)
         logger.debug("Retrieving balances for ${accountsForUser.size} accounts owned by user ${currentUser.username}")
         val balances = accountsForUser.groupBy(keySelector = { it.accountID }, valueTransform = {
-            accountService.getBalance(it.accountID)
+            accountBalancePort.getBalance(it.accountID)
         })        
         model.addAttribute("balances", balances)
         logger.debug("Adding all accounts to the model")
-        val allAccounts = accountService.findAllAccounts()
+        val allAccounts = accountService.findByOwner(userService.loggedInUser!!.username)
         model.addAttribute("allAccounts", allAccounts)
     }
 

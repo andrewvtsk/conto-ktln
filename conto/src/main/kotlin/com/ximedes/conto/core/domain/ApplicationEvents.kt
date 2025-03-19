@@ -1,4 +1,4 @@
-package com.ximedes.conto.domain
+package com.ximedes.conto.core.domain
 
 import org.springframework.context.ApplicationEvent
 
