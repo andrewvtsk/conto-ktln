@@ -13,11 +13,15 @@ class AccountBalanceAdapter(private val accountMapper: AccountMapper) : AccountB
         return accountMapper.findBalanceByAccountId(accountId) ?: 0L
     }
 
-    override fun updateBalance(accountId: String, amount: Long): Boolean {
-        return accountMapper.updateBalanceWithOptimisticLock(accountId, amount) > 0
-    }
-
     override fun getAccountOwner(accountId: String): String? {
         return accountMapper.findAccountOwnerById(accountId)
+    }
+
+    override fun updateBalanceDebit(accountId: String, amount: Long): Boolean {
+        return accountMapper.updateBalanceCreditAccountWithOptimisticLock(accountId, amount) > 0
+    }
+
+    override fun updateBalanceCredit(accountId: String, amount: Long): Boolean {
+        return accountMapper.updateBalanceDebitAccountWithOptimisticLock(accountId, amount) > 0
     }
 }

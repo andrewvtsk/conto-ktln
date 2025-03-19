@@ -35,7 +35,8 @@ interface AccountMapper {
     fun getNextUniqueID(): Long
     fun findAccountOwnerById(accountId: String): String
     fun findBalanceByAccountId(accountId: String): Long
-    fun updateBalanceWithOptimisticLock(@Param("accountId") accountId: String, @Param("amount") amount: Long): Int
+    fun updateBalanceCreditAccountWithOptimisticLock(@Param("accountId") accountId: String, @Param("amount") amount: Long): Int
+    fun updateBalanceDebitAccountWithOptimisticLock(@Param("accountId") accountId: String, @Param("amount") amount: Long): Int
 }
 
 @MyBatisMapper

@@ -31,24 +31,45 @@ class TransferService(
         amount: Long,
         description: String
     ): Transfer {
-        val debitBalance = accountBalancePort.getBalance(debitAccountID)
-
-        if (debitBalance < amount) {
-            throw InsufficientFundsException("Insufficient funds for transferring $amount")
-        }
-
+        /**
+         * Note: it is simple solution for the case when all data in the same database. For the cases whenn it is necessary to 
+         * meet consensus among different data bases, different services or separate threads the appropriate logic should be implemented.
+         */
+        val maxRetries = 3
         val transfer = Transfer(debitAccountID, creditAccountID, amount, description)
 
-        if (!accountBalancePort.updateBalance(debitAccountID, -amount)) {
-            throw RuntimeException("Transfer failed due to concurrent modification")
-        }
-        if (!accountBalancePort.updateBalance(creditAccountID, amount)) {
-            throw RuntimeException("Transfer failed due to concurrent modification")
+        retryOperation("Save Transfer", maxRetries) {
+            transferRepository.saveTransfer(transfer)
         }
 
-        transferRepository.saveTransfer(transfer)
+        retryOperation("Debit account", maxRetries) {
+            if (!accountBalancePort.updateBalanceDebit(debitAccountID, amount)) {
+                throw ConcurrentModificationException("Failed to update debit account balance")
+            }
+        }
+
+        retryOperation("Credit account", maxRetries) {
+            if (!accountBalancePort.updateBalanceCredit(creditAccountID, amount)) {
+                throw ConcurrentModificationException("Failed to update credit account balance")
+            }
+        }
 
         return transfer
+    }
+
+    // Wrapper to implement retry mechanizm for db operations
+    private fun <T> retryOperation(operationName: String, maxRetries: Int, block: () -> T): T {
+        var retryCount = 0
+        while (retryCount < maxRetries) {
+            try {
+                return block()
+            } catch (e: Exception) {
+                retryCount++
+                logger.warn { "Retrying $operationName (attempt $retryCount/$maxRetries) due to: ${e.message}" }
+                if (retryCount == maxRetries) throw RuntimeException("$operationName failed after $maxRetries attempts")
+            }
+        }
+        throw RuntimeException("$operationName failed unexpectedly")
     }
 
     @PreAuthorize("hasRole('ADMIN') or @accountSecurity.hasAccessToAccount(#accountID)")
@@ -65,7 +86,7 @@ class TransferService(
         val transfer = Transfer(rootAccount.accountID, accountID, SIGNUP_BONUS, "Welcome to Conto!")
     
         transferRepository.saveTransfer(transfer)
-        accountBalancePort.updateBalance(accountID, SIGNUP_BONUS)
+        accountBalancePort.updateBalanceCredit(accountID, SIGNUP_BONUS)
     }
 
 }

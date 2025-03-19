@@ -71,10 +71,19 @@
         WHERE account_id = #{accountId}
     </select>
 
-    <update id="updateBalanceWithOptimisticLock" parameterType="map">
+    <update id="updateBalanceCreditAccountWithOptimisticLock" parameterType="map">
         UPDATE account
         SET balance = balance + #{amount}, version = version + 1
-        WHERE account_id = #{accountId} AND version = (SELECT version FROM account WHERE account_id = #{accountId})
+        WHERE account_id = #{accountId} 
+            AND version = (SELECT version FROM account WHERE account_id = #{accountId})
+    </update>
+
+    <update id="updateBalanceDebitAccountWithOptimisticLock" parameterType="map">
+        UPDATE account
+        SET balance = balance - #{amount}, version = version + 1
+        WHERE account_id = #{accountId} 
+            AND balance - #{amount} >= minimum_balance 
+            AND version = (SELECT version FROM account WHERE account_id = #{accountId})
     </update>
 
 </mapper>
