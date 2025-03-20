@@ -13,13 +13,18 @@ import org.springframework.security.crypto.password.PasswordEncoder
 abstract class AbstractIntegrationTest {
 
     @Autowired
-    private lateinit var userMapper: UserMapper
+    protected lateinit var userMapper: UserMapper
 
     @Autowired
     lateinit var passwordEncoder: PasswordEncoder
 
     protected fun createUser(vararg usernames: String) {
         for (username in usernames) {
+            var existingUser = userMapper.findByUsername(username)
+            if (existingUser != null) {
+                println("User $username already exists, skipping creation.")
+                continue
+            }
             val u = User(username, passwordEncoder.encode(username), Role.USER)
             userMapper.insertUser(u, username.asCanonicalUsername())
         }

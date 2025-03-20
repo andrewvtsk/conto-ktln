@@ -86,4 +86,9 @@
             AND version = (SELECT version FROM account WHERE account_id = #{accountId})
     </update>
 
+    
+   <delete id="deleteAllTestAccounts">
+      DELETE FROM account WHERE owner IN ('test-user', 'debit-user', 'credit-user')
+   </delete>
+
 </mapper>

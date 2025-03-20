@@ -40,9 +40,7 @@ class TransferController(
         val accountsForUser = accountService.findByOwner(currentUser.username)
         model.addAttribute("userAccounts", accountsForUser)
         logger.debug("Retrieving balances for ${accountsForUser.size} accounts owned by user ${currentUser.username}")
-        val balances = accountsForUser.groupBy(keySelector = { it.accountID }, valueTransform = {
-            accountBalancePort.getBalance(it.accountID)
-        })        
+        val balances = accountsForUser.associate { it.accountID to accountBalancePort.getBalance(it.accountID) }
         model.addAttribute("balances", balances)
         logger.debug("Adding all accounts to the model")
         val allAccounts = accountService.findByOwner(userService.loggedInUser!!.username)

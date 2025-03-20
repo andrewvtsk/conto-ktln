@@ -58,7 +58,8 @@ class TransferService(
     }
 
     // Wrapper to implement retry mechanizm for db operations
-    private fun <T> retryOperation(operationName: String, maxRetries: Int, block: () -> T): T {
+    // Used Protected so that it is inaccessible for testing
+    protected fun <T> retryOperation(operationName: String, maxRetries: Int, block: () -> T): T {
         var retryCount = 0
         while (retryCount < maxRetries) {
             try {
@@ -66,10 +67,12 @@ class TransferService(
             } catch (e: Exception) {
                 retryCount++
                 logger.warn { "Retrying $operationName (attempt $retryCount/$maxRetries) due to: ${e.message}" }
-                if (retryCount == maxRetries) throw RuntimeException("$operationName failed after $maxRetries attempts")
+                if (retryCount == maxRetries) {
+                    throw ConcurrentModificationException("$operationName failed after $maxRetries attempts")
+                }
             }
         }
-        throw RuntimeException("$operationName failed unexpectedly")
+        throw ConcurrentModificationException("$operationName failed unexpectedly")
     }
 
     @PreAuthorize("hasRole('ADMIN') or @accountSecurity.hasAccessToAccount(#accountID)")

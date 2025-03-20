@@ -37,6 +37,7 @@ interface AccountMapper {
     fun findBalanceByAccountId(accountId: String): Long
     fun updateBalanceCreditAccountWithOptimisticLock(@Param("accountId") accountId: String, @Param("amount") amount: Long): Int
     fun updateBalanceDebitAccountWithOptimisticLock(@Param("accountId") accountId: String, @Param("amount") amount: Long): Int
+    fun deleteAllTestAccounts()
 }
 
 @MyBatisMapper
@@ -45,4 +46,5 @@ interface TransferMapper {
     fun findByTransferID(transferID: Long): Transfer?
     fun findTransfersByAccountID(accountID: String): List<Transfer>
     fun calculateBalanceByAccountID(accountID: String): Long
+    fun deleteAllTestTransfers()
 }

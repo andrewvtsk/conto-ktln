@@ -54,7 +54,7 @@ class HomeController(
 
         logger.debug("Retrieving all transfers for selected account $selectedAccountID")
         val transfers = transferService.findTransfersByAccountID(selectedAccountID)
-        mav.addObject(transfers)
+        mav.addObject("transfers", transfers)
 
         /**
          * Add all accounts to fill the address book in the UI

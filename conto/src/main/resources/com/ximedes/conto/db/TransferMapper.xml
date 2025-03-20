@@ -81,4 +81,8 @@
       WHERE debit_account_id = #{accountID} OR credit_account_id = #{accountID}
    </select>
 
+   <delete id="deleteAllTestTransfers">
+      DELETE FROM transfer WHERE debit_account_id LIKE 'NL%' OR credit_account_id LIKE 'NL%'
+   </delete>
+
 </mapper>
