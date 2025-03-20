@@ -46,8 +46,10 @@ class AccountService(
     private fun doCreateAccount(owner: String, description: String, minimumBalance: Long): Account {
         val accountID = generateAccountID()
         val account = Account(accountID, owner, description, minimumBalance, 0L)
+
         accountPort.save(account)
         logger.info("Created new account $account.")
+        
         return account
     }
 

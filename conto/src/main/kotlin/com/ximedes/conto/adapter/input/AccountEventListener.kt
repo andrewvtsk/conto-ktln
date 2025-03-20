@@ -7,6 +7,8 @@ import com.ximedes.conto.core.domain.AdminUserCreatedEvent
 import com.ximedes.conto.core.domain.UserSignedUpEvent
 import mu.KotlinLogging
 import org.springframework.context.event.EventListener
+import org.springframework.transaction.event.TransactionalEventListener
+
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Component
 
@@ -18,7 +20,7 @@ class AccountEventListener(
 
     private val logger = KotlinLogging.logger {}
 
-    @EventListener
+    @TransactionalEventListener
     fun onFirstAccountCreated(event: FirstAccountCreatedEvent) {
         logger.info { "Processing signup bonus for ${event.accountID}" }
         transferUseCase.grantSignupBonus(event.accountID)
@@ -30,7 +32,7 @@ class AccountEventListener(
         accountUseCase.createAccount(event.adminUsername, "Bank", Long.MIN_VALUE)
     }
 
-    @EventListener
+    @TransactionalEventListener
     fun onUserSignedUp(event: UserSignedUpEvent) {
         logger.info { "Creating first account for user ${event.username}" }
         val a = accountUseCase.createAccount(event.username, "Checking", 0L)
