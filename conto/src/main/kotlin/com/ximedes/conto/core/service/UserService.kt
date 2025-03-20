@@ -46,7 +46,7 @@ class UserService(
         val admin = User(ADMIN_USERNAME, encoder.encode(ADMIN_PASSWORD), Role.ADMIN)
         userPort.insertUser(admin, ADMIN_USERNAME)
         
-        // authenticateUser(admin, ADMIN_PASSWORD)
+        authenticateUser(admin)
 
         eventPublisher.publishEvent(AdminUserCreatedEvent(this, ADMIN_USERNAME))
     }
@@ -67,17 +67,19 @@ class UserService(
     fun signupAndLogin(username: String, password: String): User {
         val user = User(username, encoder.encode(password), Role.USER)
         userPort.insertUser(user, username.asCanonicalUsername())
+        authenticateUser(user)
+
         eventPublisher.publishEvent(UserSignedUpEvent(this, user.username))
         return user
     }
 
-    // private fun authenticateUser(user: User, password: String) {
-    //     val authorities = setOf(SimpleGrantedAuthority(user.role.authority))
-    //     val authToken = UsernamePasswordAuthenticationToken(
-    //         SpringUser(user.username, user.password, authorities), password, authorities
-    //     )
-    //     SecurityContextHolder.getContext().authentication = authToken
-    // }
+    private fun authenticateUser(user: User) {
+        val authorities = setOf(SimpleGrantedAuthority(user.role.authority))
+        val authToken = UsernamePasswordAuthenticationToken(
+            SpringUser(user.username, user.password, authorities), user.password, authorities
+        )
+        SecurityContextHolder.getContext().authentication = authToken
+    }
 
     private fun createSpringUser(user: User): SpringUser {
         return SpringUser(user.username, user.password, setOf(SimpleGrantedAuthority(user.role.authority)))

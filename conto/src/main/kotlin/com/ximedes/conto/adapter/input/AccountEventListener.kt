@@ -29,6 +29,6 @@ class AccountEventListener(private val transferUseCase: TransferUseCase, private
     @EventListener
     fun onUserSignedUp(event: UserSignedUpEvent) {
         logger.info { "Creating first account for user ${event.username}" }
-        val account = accountUseCase.createAccount(event.username, "Checking", 0L)
+        accountUseCase.createAccount(event.username, "Checking", 0L)
     }
 }
