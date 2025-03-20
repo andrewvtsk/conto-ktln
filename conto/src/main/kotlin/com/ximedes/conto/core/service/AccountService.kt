@@ -23,14 +23,16 @@ class AccountService(
     private val logger = KotlinLogging.logger {}
 
     override fun getRootAccount(): Account {
-        return accountPort.findByOwner("System").firstOrNull()
+        return accountPort.findByOwner("admin").firstOrNull()
             ?: throw IllegalStateException("Root account not found in DB!")
     }
 
     @PreAuthorize("hasRole('ROLE_USER')")
     override fun createAccount(description: String): Account {
         val username = getCurrentUser().username
-        return doCreateAccount(username, description, 0L)
+        val a = doCreateAccount(username, description, 0L)
+        logger.info { "New account for $username created" }
+        return a
     }
 
     // @PreAuthorize("hasRole('ROLE_ADMIN')")

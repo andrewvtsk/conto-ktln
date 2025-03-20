@@ -7,10 +7,14 @@ import com.ximedes.conto.core.domain.AdminUserCreatedEvent
 import com.ximedes.conto.core.domain.UserSignedUpEvent
 import mu.KotlinLogging
 import org.springframework.context.event.EventListener
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.stereotype.Component
 
 @Component
-class AccountEventListener(private val transferUseCase: TransferUseCase, private val accountUseCase: AccountUseCase) {
+class AccountEventListener(
+    private val transferUseCase: TransferUseCase, 
+    private val accountUseCase: AccountUseCase,
+    private val eventPublisher: ApplicationEventPublisher) {
 
     private val logger = KotlinLogging.logger {}
 
@@ -29,6 +33,9 @@ class AccountEventListener(private val transferUseCase: TransferUseCase, private
     @EventListener
     fun onUserSignedUp(event: UserSignedUpEvent) {
         logger.info { "Creating first account for user ${event.username}" }
-        accountUseCase.createAccount(event.username, "Checking", 0L)
+        val a = accountUseCase.createAccount(event.username, "Checking", 0L)
+
+        eventPublisher.publishEvent(FirstAccountCreatedEvent(this, a.owner, a.accountID))
+
     }
 }

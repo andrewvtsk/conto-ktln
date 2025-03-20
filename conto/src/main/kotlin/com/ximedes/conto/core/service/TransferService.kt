@@ -38,6 +38,8 @@ class TransferService(
         val maxRetries = 3
         val transfer = Transfer(debitAccountID, creditAccountID, amount, description)
 
+        logger.info("Started Transfer form $debitAccountID to $creditAccountID")
+
         retryOperation("Save Transfer", maxRetries) {
             transferRepository.saveTransfer(transfer)
         }
@@ -53,6 +55,8 @@ class TransferService(
                 throw ConcurrentModificationException("Failed to update credit account balance")
             }
         }
+
+        logger.info("Completed transfer form $debitAccountID to $creditAccountID")
 
         return transfer
     }
