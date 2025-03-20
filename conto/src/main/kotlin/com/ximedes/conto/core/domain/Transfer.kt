@@ -7,7 +7,7 @@ data class Transfer(val transferID: Long,
                     val creditAccountID: String,
                     val amount: Long,
                     val description: String,
-                    val timestamp: LocalDateTime = LocalDateTime.now()) {
+                    val timestamp: LocalDateTime) {
 
     constructor(debitAccountID: String, creditAccountID: String, amount: Long, description: String) : this(-1L, debitAccountID, creditAccountID, amount, description, LocalDateTime.now())
 }
